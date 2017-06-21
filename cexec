@@ -5,6 +5,14 @@ use strict;
 # The simplest tool was the raw rpc tool
 #
 
+# The default options - should be set from commandline or rc file eventually
+my $option = {
+    addr     => "127.0.0.1",
+    port     => "11234",
+    password => "NONE",
+    trace    => 1,
+};
+
 package Stream::String;
 use warnings;
 use strict;
@@ -137,6 +145,70 @@ sub decode {
 
 1;
 
+package RPC;
+use warnings;
+use strict;
+#
+# Wrap the communications
+#
+
+use Bencode qw( bencode );
+
+sub new {
+    my $class = shift;
+    my $addr = shift || die("need address");
+    my $port = shift || die("need port");
+    my $password = shift || die("need password");
+
+    my $self = {};
+    bless $self, $class;
+
+    $self->{_fh} = IO::Socket::INET->new(
+        Proto    => "udp",
+        PeerAddr => $addr,
+        PeerPort => $port,
+    ) or die "Cannot connect: $!\n";
+
+    return $self;
+}
+
+sub trace {
+    my $self = shift;
+    $self->{trace} = shift;
+    return $self->{trace};
+}
+
+sub _trace {
+    my $self = shift;
+    my $direction = shift;
+    my $packet = shift;
+
+    if ($self->{trace}) {
+        print($direction," ",$packet,"\n");
+    }
+}
+
+sub call {
+    my $self = shift;
+    my $q = shift;
+
+    my $packet = {
+        q => $q,
+    };
+    my $buf = bencode($packet);
+    $self->_trace(">",$buf);
+    $self->{_fh}->syswrite($buf);
+}
+
+sub response {
+    my $self = shift;
+
+    my $buf;
+    $self->{_fh}->sysread($buf,4096);
+    $self->_trace("<",$buf);
+    return Bdecode_bork::decode($buf);
+}
+
 package main;
 use warnings;
 use strict;
@@ -147,39 +219,17 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 
 use IO::Socket;
-use Bencode qw( bencode );
-
-my $option = {
-    addr     => "127.0.0.1",
-    port     => "11234",
-    password => "NONE",
-    trace    => 1,
-};
-
-sub trace {
-    my $direction = shift;
-    my $packet = shift;
-
-    if ($option->{trace}) {
-        print($direction," ",$packet,"\n");
-    }
-}
 
 sub main() {
-    my $fh = IO::Socket::INET->new(
-        Proto    => "udp",
-        PeerAddr => $option->{addr},
-        PeerPort => $option->{port},
-    ) or die "Cannot connect: $!\n";
+    my $rpc = RPC->new(
+        $option->{addr},
+        $option->{port},
+        $option->{password},
+    ) or die "cannot start rpc";
+    $rpc->trace($option->{trace});
 
-    my $packet = {
-        q => "ping",
-    };
-    my $buf = bencode($packet);
-    trace(">",$buf);
-    $fh->syswrite($buf);
-    $fh->sysread($buf,4096);
-    trace("<",$buf);
-    print(Dumper(Bdecode_bork::decode($buf)));
+    $rpc->call('ping');
+    my $buf = $rpc->response();
+    print(Dumper($buf));
 }
 main();
