@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+#
+# The simplest tool was the raw rpc tool
+#
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Quotekeys = 0;
+
+use IO::Socket;
+
+
+my $option = {
+    addr     => "127.0.0.1",
+    port     => "11234",
+    password => "NONE",
+};
+
+sub main() {
+    my $fh = IO::Socket::INET->new(
+        Proto    => "udp",
+        PeerAddr => $option->{addr},
+        PeerPort => $option->{port},
+    ) or die "Cannot connect: $!\n";
+
+    $fh->syswrite("d1:q4:pinge");
+    my $buf;
+    $fh->sysread($buf,4096);
+    print($buf);
+}
+main();
