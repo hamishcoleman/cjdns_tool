@@ -65,13 +65,59 @@ sub read {
 
 1;
 
-package Bdecode_bork;
+package Bencode_bork;
 use warnings;
 use strict;
+#
+# I did so well on the decoder, that when I discovered that I could not simply
+# install the libbencode-perl without dragging 33Meg of stuff in, I thought
+# "why not write an encoder too" ..
 #
 # Unfortunately, the bencoder used by cjdns thinks that zero prefixing the
 # string length is a valid action, so I cannot simply use the debian
 # libbdecode-perl package
+#
+
+sub _encode_value {
+    my $value = shift;
+
+    if (ref($value) eq 'HASH') {
+        my @r;
+        push @r,'d';
+        # bencode specifies a sort order, so make sure we use it
+        for my $key (sort(keys(%{$value}))) {
+            push @r, _encode_value($key);
+            push @r, _encode_value($value->{$key});
+        }
+        push @r,'e';
+        return @r;
+    }
+
+    if (ref($value) eq 'ARRAY') {
+        my @r;
+        push @r,'l';
+        for my $i (@{$value}) {
+            push @r, _encode_value($i);
+        }
+        push @r,'e';
+        return @r;
+    }
+
+    if (ref($value) eq 'SCALAR') {
+        return _encode_value($$value);
+    }
+
+    if ($value =~ m/^-?[0-9]$/) {
+        return 'i',$value,'e';
+    }
+
+    return length($value),':',$value;
+}
+
+sub encode {
+    my $data = shift;
+    return join('',_encode_value($data));
+}
 
 sub _get_type {
     my $sh = shift;
@@ -169,7 +215,6 @@ use strict;
 # Wrap the communications
 #
 
-use Bencode qw( bencode );
 use Digest::SHA qw(sha256_hex);
 
 sub new {
@@ -248,7 +293,7 @@ sub _build_query_auth {
         $packet->{args} = { @_ };
     }
 
-    my $buf = bencode($packet);
+    my $buf = Bencode_bork::encode($packet);
     $packet->{hash} = sha256_hex($buf);
     return $packet;
 }
@@ -258,7 +303,7 @@ sub _sync_call {
     my $packet = shift;
     my $txid = $packet->{txid};
 
-    my $buf = bencode($packet);
+    my $buf = Bencode_bork::encode($packet);
     $self->_trace(">",$buf);
     $self->{_fh}->syswrite($buf);
 
@@ -275,7 +320,7 @@ sub _read {
     my $buf;
     $self->{_fh}->sysread($buf,4096);
     $self->_trace("<",$buf);
-    return Bdecode_bork::decode($buf);
+    return Bencode_bork::decode($buf);
 }
 
 sub ping {
