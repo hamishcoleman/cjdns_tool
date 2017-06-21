@@ -78,6 +78,7 @@ sub _get_type {
     return $sh->getc();
 }
 
+# FIXME - negative numbers
 sub _get_int_raw {
     my $sh = shift;
     my $int = 0;
@@ -127,6 +128,21 @@ sub _get_dict {
     return $result;
 }
 
+sub _get_array {
+    my $sh = shift;
+    my $result = [];
+    while (1) {
+        my $type = _get_type($sh);
+        last if ($type eq 'e');
+        die("syntax") if ($type !~ m/[-0-9dli]/);
+        $sh->ungetc();
+
+        my $value = _get_value($sh);
+        push @{$result}, $value;
+    }
+    return $result;
+}
+
 sub _get_value {
     my $sh = shift;
     my $output;
@@ -136,8 +152,7 @@ sub _get_value {
         return _get_dict($sh);
     }
     if ($type eq 'l') {
-        # array
-        ...
+        return _get_array($sh);
     }
     if ($type eq 'i') {
         return _get_int($sh);
@@ -350,5 +365,8 @@ sub main() {
 
     #print(Dumper($rpc->Admin_availableFunctions()));
 
+    my $packet;
+    $packet = $rpc->_build_query_auth('ETHInterface_listDevices');
+    print(Dumper($rpc->_sync_call($packet)));
 }
 main();
