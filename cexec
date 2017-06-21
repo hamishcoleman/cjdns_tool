@@ -211,22 +211,37 @@ sub _txid {
     return $$.'-'.$self->{_txcount}++;
 }
 
-sub _send {
+sub _build_query_unauth {
     my $self = shift;
     my $q = shift;
 
+    my $txid = $self->_txid();
     my $packet = {
         q => $q,
-        txid => $self->_txid()
+        txid => $txid,
     };
 
     if (scalar(@_)) {
         $packet->{args} = { @_ };
     }
 
+    return $packet;
+}
+
+sub _sync_call {
+    my $self = shift;
+    my $packet = shift;
+    my $txid = $packet->{txid};
+
     my $buf = bencode($packet);
     $self->_trace(">",$buf);
     $self->{_fh}->syswrite($buf);
+
+    $buf = $self->_read();
+    if (defined($txid) && $buf->{txid} ne $txid) {
+        die("txid mismatch");
+    }
+    return $buf;
 }
 
 sub _read {
@@ -241,8 +256,8 @@ sub _read {
 sub ping {
     my $self = shift;
 
-    $self->_send('ping');
-    return $self->_read();
+    my $packet = $self->_build_query_unauth('ping');
+    return $self->_sync_call($packet);
 }
 
 sub Admin_availableFunctions {
@@ -251,8 +266,11 @@ sub Admin_availableFunctions {
 
     my $more = 1;
     while ($more) {
-        $self->_send('Admin_availableFunctions', page=>$page);
-        my $buf = $self->_read();
+        my $packet = $self->_build_query_unauth(
+            'Admin_availableFunctions',
+            page=>$page
+        );
+        my $buf = $self->_sync_call($packet);
 
         for my $fn (keys(%{$buf->{availableFunctions}})) {
             $self->{_fn}{$fn} = $buf->{availableFunctions}{$fn};
@@ -265,8 +283,8 @@ sub Admin_availableFunctions {
 
 sub cookie {
     my $self = shift;
-    $self->_send('cookie');
-    my $buf = $self->_read();
+    my $packet = $self->_build_query_unauth('cookie');
+    my $buf = $self->_sync_call($packet);
     $self->{_cookie} = $buf->{cookie};
     return $buf;
 }
