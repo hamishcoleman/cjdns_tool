@@ -188,7 +188,7 @@ sub _trace {
     }
 }
 
-sub call {
+sub _send {
     my $self = shift;
     my $q = shift;
 
@@ -200,13 +200,20 @@ sub call {
     $self->{_fh}->syswrite($buf);
 }
 
-sub response {
+sub _read {
     my $self = shift;
 
     my $buf;
     $self->{_fh}->sysread($buf,4096);
     $self->_trace("<",$buf);
     return Bdecode_bork::decode($buf);
+}
+
+sub ping {
+    my $self = shift;
+
+    $self->_send('ping');
+    return $self->_read();
 }
 
 package main;
@@ -228,8 +235,7 @@ sub main() {
     ) or die "cannot start rpc";
     $rpc->trace($option->{trace});
 
-    $rpc->call('ping');
-    my $buf = $rpc->response();
-    print(Dumper($buf));
+    print(Dumper($rpc->ping()));
+
 }
 main();
