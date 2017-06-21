@@ -1,0 +1,8 @@
+While trying to put together a system image for mesh routing, one of
+the mesh protocols (cjdns) turned out to not have native code admin tools.
+
+Worse still, it had either nodejs or python tools.  Which is basically
+only an issue because in the minimal system image I was using, only perl
+was installed.
+
+
