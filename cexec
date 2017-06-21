@@ -5,19 +5,165 @@ use strict;
 # The simplest tool was the raw rpc tool
 #
 
+package Stream::String;
+use warnings;
+use strict;
+#
+# In another example of yak shaving, I dont want to install libio-string-perl
+
+sub new {
+    my $class = shift;
+    my $self = {};
+    bless $self, $class;
+    $self->{_pos} = 0;
+    $self->{_string} = shift || die("empty strings are unsupported");
+    return $self;
+}
+
+sub eof {
+    my $self = shift;
+    if ($self->{_pos} >= length($self->{_string})) {
+        return 1;
+    }
+    return 0;
+}
+
+sub getc {
+    my $self = shift;
+    if ($self->eof()) {
+        # accessing beyond the end of the string
+        return undef;
+    }
+    return substr($self->{_string},$self->{_pos}++,1);
+}
+
+sub ungetc {
+    my $self = shift;
+    my $ch && die("cannot specify the ungetc char");
+    if ($self->{_pos} == 0) {
+        return undef;
+    }
+    $self->{_pos}--;
+    return 1;
+}
+
+sub read {
+    my $self = shift;
+    my $count = shift;
+    my $result = substr($self->{_string}, $self->{_pos}, $count);
+    $self->{_pos} += $count;
+    return $result;
+}
+
+1;
+
+package Bdecode_bork;
+use warnings;
+use strict;
+#
+# Unfortunately, the bencoder used by cjdns thinks that zero prefixing the
+# string length is a valid action, so I cannot simply use the debian
+# libbdecode-perl package
+
+sub _get_type {
+    my $sh = shift;
+    return $sh->getc();
+}
+
+sub _get_string {
+    my $sh = shift;
+    my $count = 0;
+    my $ch = $sh->getc();
+    while (1) {
+        die("syntax") if ($ch !~ m/[0-9]/);
+        $count += $ch;
+        $ch = $sh->getc();
+        last if ($ch eq ':');
+        $count *= 10;
+    }
+    return $sh->read($count);
+}
+
+sub _get_dict {
+    my $sh = shift;
+    my $result = {};
+    while (1) {
+        my $type = _get_type($sh);
+        last if ($type eq 'e');
+        die("syntax") if ($type !~ m/[0-9]/);
+        $sh->ungetc();
+
+        my $key = _get_string($sh);
+        my $value = _get_value($sh);
+        $result->{$key} = $value;
+    }
+    return $result;
+}
+
+sub _get_value {
+    my $sh = shift;
+    my $output;
+    my $type = _get_type($sh);
+
+    if ($type eq 'd') {
+        return _get_dict($sh);
+    }
+    if ($type eq 'l') {
+        # array
+        ...
+    }
+    if ($type eq 'i') {
+        # integer
+        ...
+    }
+    if ($type =~ m/[0-9]/) {
+        # a string
+        $sh->ungetc();
+        return _get_string($sh);
+    }
+    die("syntax");
+}
+
+sub decode {
+    my $input_string = shift;
+    my $sh = Stream::String->new($input_string);
+    my $result = _get_value($sh);
+    if (!$sh->eof()) {
+        my $garbage = $sh->read();
+        warn("trailing garbage: ",$garbage);
+    }
+    return $result;
+}
+
+1;
+
+package main;
+use warnings;
+use strict;
+
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Quotekeys = 0;
 
 use IO::Socket;
-
+use Bencode qw( bencode );
 
 my $option = {
     addr     => "127.0.0.1",
     port     => "11234",
     password => "NONE",
+    trace    => 1,
 };
+
+sub trace {
+    my $direction = shift;
+    my $packet = shift;
+
+    if ($option->{trace}) {
+        print($direction," ",$packet,"\n");
+    }
+}
 
 sub main() {
     my $fh = IO::Socket::INET->new(
@@ -26,9 +172,14 @@ sub main() {
         PeerPort => $option->{port},
     ) or die "Cannot connect: $!\n";
 
-    $fh->syswrite("d1:q4:pinge");
-    my $buf;
+    my $packet = {
+        q => "ping",
+    };
+    my $buf = bencode($packet);
+    trace(">",$buf);
+    $fh->syswrite($buf);
     $fh->sysread($buf,4096);
-    print($buf);
+    trace("<",$buf);
+    print(Dumper(Bdecode_bork::decode($buf)));
 }
 main();
