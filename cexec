@@ -112,25 +112,9 @@ sub _get_string {
     return $sh->read($count);
 }
 
-sub _get_dict {
-    my $sh = shift;
-    my $result = {};
-    while (1) {
-        my $type = _get_type($sh);
-        last if ($type eq 'e');
-        die("syntax") if ($type !~ m/[0-9]/);
-        $sh->ungetc();
-
-        my $key = _get_string($sh);
-        my $value = _get_value($sh);
-        $result->{$key} = $value;
-    }
-    return $result;
-}
-
 sub _get_array {
     my $sh = shift;
-    my $result = [];
+    my @result;
     while (1) {
         my $type = _get_type($sh);
         last if ($type eq 'e');
@@ -138,9 +122,9 @@ sub _get_array {
         $sh->ungetc();
 
         my $value = _get_value($sh);
-        push @{$result}, $value;
+        push @result, $value;
     }
-    return $result;
+    return @result;
 }
 
 sub _get_value {
@@ -149,10 +133,10 @@ sub _get_value {
     my $type = _get_type($sh);
 
     if ($type eq 'd') {
-        return _get_dict($sh);
+        return {_get_array($sh)};
     }
     if ($type eq 'l') {
-        return _get_array($sh);
+        return [_get_array($sh)];
     }
     if ($type eq 'i') {
         return _get_int($sh);
