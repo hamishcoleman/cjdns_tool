@@ -186,7 +186,7 @@ sub new {
         PeerAddr => $addr,
         PeerPort => $port,
     ) or die "Cannot connect: $!\n";
-
+    $self->{_txcount} = 0;
     return $self;
 }
 
@@ -206,12 +206,18 @@ sub _trace {
     }
 }
 
+sub _txid {
+    my $self = shift;
+    return $$.'-'.$self->{_txcount}++;
+}
+
 sub _send {
     my $self = shift;
     my $q = shift;
 
     my $packet = {
         q => $q,
+        txid => $self->_txid()
     };
 
     if (scalar(@_)) {
@@ -257,6 +263,14 @@ sub Admin_availableFunctions {
     return $self->{_fn};
 }
 
+sub cookie {
+    my $self = shift;
+    $self->_send('cookie');
+    my $buf = $self->_read();
+    $self->{_cookie} = $buf->{cookie};
+    return $buf;
+}
+
 1;
 
 package main;
@@ -281,5 +295,7 @@ sub main() {
     print(Dumper($rpc->ping()));
 
     print(Dumper($rpc->Admin_availableFunctions()));
+
+    print(Dumper($rpc->cookie()));
 }
 main();
