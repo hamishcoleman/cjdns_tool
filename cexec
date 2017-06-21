@@ -78,17 +78,36 @@ sub _get_type {
     return $sh->getc();
 }
 
+sub _get_int_raw {
+    my $sh = shift;
+    my $int = 0;
+    my $ch = $sh->getc();
+    die("syntax") if ($ch !~ m/[0-9]/); # at least one digit
+    while (1) {
+        $int += $ch;
+        $ch = $sh->getc();
+        if ($ch !~ m/[0-9]/) {
+            $sh->ungetc();
+            return $int;
+        }
+        $int *= 10;
+    }
+    ...
+}
+
+sub _get_int {
+    my $sh = shift;
+    my $int = _get_int_raw($sh);
+    my $ch = $sh->getc();
+    die("syntax") if ($ch ne 'e');
+    return $int;
+}
+
 sub _get_string {
     my $sh = shift;
-    my $count = 0;
+    my $count = _get_int_raw($sh);
     my $ch = $sh->getc();
-    while (1) {
-        die("syntax") if ($ch !~ m/[0-9]/);
-        $count += $ch;
-        $ch = $sh->getc();
-        last if ($ch eq ':');
-        $count *= 10;
-    }
+    die("syntax") if ($ch ne ':');
     return $sh->read($count);
 }
 
@@ -121,8 +140,7 @@ sub _get_value {
         ...
     }
     if ($type eq 'i') {
-        # integer
-        ...
+        return _get_int($sh);
     }
     if ($type =~ m/[0-9]/) {
         # a string
@@ -195,6 +213,11 @@ sub _send {
     my $packet = {
         q => $q,
     };
+
+    if (scalar(@_)) {
+        $packet->{args} = { @_ };
+    }
+
     my $buf = bencode($packet);
     $self->_trace(">",$buf);
     $self->{_fh}->syswrite($buf);
@@ -215,6 +238,26 @@ sub ping {
     $self->_send('ping');
     return $self->_read();
 }
+
+sub Admin_availableFunctions {
+    my $self = shift;
+    my $page = 0;
+
+    my $more = 1;
+    while ($more) {
+        $self->_send('Admin_availableFunctions', page=>$page);
+        my $buf = $self->_read();
+
+        for my $fn (keys(%{$buf->{availableFunctions}})) {
+            $self->{_fn}{$fn} = $buf->{availableFunctions}{$fn};
+        }
+        $more = $buf->{more};
+        $page++;
+    }
+    return $self->{_fn};
+}
+
+1;
 
 package main;
 use warnings;
@@ -237,5 +280,6 @@ sub main() {
 
     print(Dumper($rpc->ping()));
 
+    print(Dumper($rpc->Admin_availableFunctions()));
 }
 main();
