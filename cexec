@@ -171,6 +171,7 @@ use strict;
 #
 
 use Bencode qw( bencode );
+use Digest::SHA qw(sha256_hex);
 
 sub new {
     my $class = shift;
@@ -187,6 +188,7 @@ sub new {
         PeerPort => $port,
     ) or die "Cannot connect: $!\n";
     $self->{_txcount} = 0;
+    $self->{_password} = $password;
     return $self;
 }
 
@@ -215,16 +217,40 @@ sub _build_query_unauth {
     my $self = shift;
     my $q = shift;
 
-    my $txid = $self->_txid();
     my $packet = {
         q => $q,
-        txid => $txid,
+        txid => $self->_txid(),
     };
 
     if (scalar(@_)) {
         $packet->{args} = { @_ };
     }
 
+    return $packet;
+}
+
+sub _build_query_auth {
+    my $self = shift;
+    my $aq = shift;
+
+    die("no auth") if (!defined($self->{_hash}));
+    die("no cookie") if (!defined($self->{_cookie}));
+
+    my $cookie = sprintf("%i",$self->{_cookie});
+    my $packet = {
+        q => 'auth',
+        aq => $aq,
+        txid => $self->_txid(),
+        cookie => \$cookie,
+        hash => $self->{_hash},
+    };
+
+    if (scalar(@_)) {
+        $packet->{args} = { @_ };
+    }
+
+    my $buf = bencode($packet);
+    $packet->{hash} = sha256_hex($buf);
     return $packet;
 }
 
@@ -260,6 +286,13 @@ sub ping {
     return $self->_sync_call($packet);
 }
 
+sub ping_auth {
+    my $self = shift;
+
+    my $packet = $self->_build_query_auth('ping');
+    return $self->_sync_call($packet);
+}
+
 sub Admin_availableFunctions {
     my $self = shift;
     my $page = 0;
@@ -286,6 +319,7 @@ sub cookie {
     my $packet = $self->_build_query_unauth('cookie');
     my $buf = $self->_sync_call($packet);
     $self->{_cookie} = $buf->{cookie};
+    $self->{_hash} = sha256_hex($self->{_password}.$self->{_cookie});
     return $buf;
 }
 
@@ -311,9 +345,10 @@ sub main() {
     $rpc->trace($option->{trace});
 
     print(Dumper($rpc->ping()));
-
-    print(Dumper($rpc->Admin_availableFunctions()));
-
     print(Dumper($rpc->cookie()));
+    print(Dumper($rpc->ping_auth()));
+
+    #print(Dumper($rpc->Admin_availableFunctions()));
+
 }
 main();
