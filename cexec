@@ -33,38 +33,46 @@ sub Dumper {
 
     if (ref($value) eq 'HASH') {
         my @r;
-        push @r, "dict:\n";
+        push @r, "{\n";
+        $depth++;
         # bencode specifies a sort order, so make sure we use it
         for my $key (sort(keys(%{$value}))) {
-            push @r, "\t";
-            push @r, Dumper($key);
-            push @r, "\t";
-            push @r, Dumper($value->{$key});
-            push @r, "\n";
+            push @r, ' 'x$depth, Dumper($key, $depth);
+            push @r, ': ', Dumper($value->{$key}, $depth);
+
+            # FIXME - some json wants the last item to not have a separator
+            push @r, ",\n";
         }
+        $depth--;
+        push @r, ' 'x$depth, "}\n";
         return @r;
     }
 
     if (ref($value) eq 'ARRAY') {
         my @r;
-        push @r, "array:\n";
+        push @r, "[\n";
+        $depth++;
         for my $i (@{$value}) {
-            push @r, "\t";
-            push @r, Dumper($i);
-            push @r, "\n";
+            push @r, ' 'x$depth, Dumper($i, $depth);
+
+            # FIXME - some json wants the last item to not have a separator
+            push @r, ",\n";
         }
+        $depth--;
+        push @r, ' 'x$depth, "]";
         return @r;
     }
 
     if (ref($value) eq 'SCALAR') {
-        return Dumper($$value);
+        return Dumper($$value, $depth);
     }
 
     if ($value =~ m/^-?[0-9]$/) {
-        return 'int: ',$value;
+        return $value;
     }
 
-    return 'str: ',$value;
+    # FIXME - quote escape the value
+    return "'",$value,"'";
 }
 
 1;
