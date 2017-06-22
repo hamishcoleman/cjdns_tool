@@ -44,7 +44,7 @@ sub Dumper {
             push @r, ",\n";
         }
         $depth--;
-        push @r, ' 'x$depth, "}\n";
+        push @r, ' 'x$depth, "}";
         return @r;
     }
 
