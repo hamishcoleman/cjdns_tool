@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+#
+# This is a simple and generic test runner script, intended to be used
+# when the tests are co-located with the modules they are testing.
+#
+
+# originally copied from ExtUtils::Command::MM
+require TAP::Harness;
+require File::Spec;
+
+# The path to test is given on the commandline, or it is the current dir
+my $path = $ARGV[0] || '.';
+my @libs = map( { File::Spec->rel2abs($_) }
+    $path,
+    File::Spec->catdir($path,'/lib'),
+    File::Spec->catdir($ENV{'HOME'}.'/s/bin/lib'),
+);
+
+## This script lives in the topdir, use that to calculate libdir
+#my $libdir = File::Spec->catdir( (File::Spec->splitpath($0))[1], 'lib');
+#my @libs = map( { File::Spec->rel2abs($_) } $libdir);
+
+my %args = (
+    verbosity => 0,
+    lib       => [@libs],
+    color     => 1,
+);
+
+if (defined $ENV{COVER} && $ENV{COVER} eq 'true') {
+    $args{switches} = '-MDevel::Cover=-ignore,\\.t$';
+}
+
+my $harness = TAP::Harness->new(\%args);
+
+my @testfiles;
+use File::Find;
+find( sub {
+        if ($_ =~ m/\.t$/) {
+            push @testfiles,$File::Find::name;
+        }
+    },
+    $path,
+);
+
+my $result = $harness->runtests(@testfiles);
+
+if ($result->get_status eq 'PASS') {
+    exit(0);
+} else {
+    exit(1);
+}
+
+# TODO
+# - use prove
+
+
