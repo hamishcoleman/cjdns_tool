@@ -170,7 +170,7 @@ sub getc {
 
 sub ungetc {
     my $self = shift;
-    my $ch && die("cannot specify the ungetc char");
+    my $ch = shift && die("cannot specify the ungetc char");
     if ($self->{_pos} == 0) {
         return undef;
     }
