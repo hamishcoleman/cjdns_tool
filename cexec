@@ -252,22 +252,26 @@ sub _get_type {
     return $sh->getc();
 }
 
-# FIXME - negative numbers
 sub _get_int_raw {
     my $sh = shift;
+    my $sign = 1;
     my $int = 0;
     my $ch = $sh->getc();
-    die("syntax") if ($ch !~ m/[0-9]/); # at least one digit
+    die("syntax") if ($ch !~ m/[-0-9]/); # at least one digit-ish
     while (1) {
-        $int += $ch;
+        if ($ch eq '-') {
+            $sign = -1;
+        } else {
+            $int += $ch;
+        }
         $ch = $sh->getc();
         if ($ch !~ m/[0-9]/) {
             $sh->ungetc();
-            return $int;
+            return $int * $sign;
         }
         $int *= 10;
     }
-    ...
+    # not_reached
 }
 
 sub _get_int {

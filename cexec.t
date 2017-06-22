@@ -3,27 +3,29 @@ use Test::More 'no_plan';
 
 require_ok('./cexec');
 
-## test the data dumper
-
-# Simple scalars
-is(mini::Data::Dumper(1),"1\n");
-is(mini::Data::Dumper(-1),"-1\n");
-is(mini::Data::Dumper('fred'),"'fred'\n");
-# TODO - floating point numbers
-
-# More complete structures
-my ($input,$expect);
-$input = {
+my $test_structure = {
     a => 1,
+    aa => -100,
     b => 'fred',
     c => [ 1, 2, 'aa', 'bb' ],
     d => { },
     e => [ ],
-    f => \'test',
+    f => \'-200',
 };
-$expect = <<'EOF';
+
+## test the data dumper
+
+# Simple scalars
+is(mini::Data::Dumper(1),"1\n");
+is(mini::Data::Dumper(-100),"-100\n");
+is(mini::Data::Dumper('fred'),"'fred'\n");
+# TODO - floating point numbers
+
+# Test more complete structures
+my $expect = <<'EOF';
 {
  'a': 1,
+ 'aa': -100,
  'b': 'fred',
  'c': [
   1,
@@ -33,10 +35,10 @@ $expect = <<'EOF';
  ],
  'd': { },
  'e': [ ],
- 'f': \'test',
+ 'f': \-200,
 }
 EOF
-is(mini::Data::Dumper($input),$expect);
+is(mini::Data::Dumper($test_structure),$expect);
 
 ## Test the sha256 hack
 is(mini::Digest::SHA::sha256(''),'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
