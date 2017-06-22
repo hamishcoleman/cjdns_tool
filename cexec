@@ -13,6 +13,62 @@ my $option = {
     trace    => 1,
 };
 
+package mini::Data;
+use warnings;
+use strict;
+#
+# In the endless list of things I need to build from scratch, Data::Dumper
+# also needs lots of packages installed
+#
+# TODO - try to load the Data::Dumper and use it if found
+
+#use Data::Dumper;
+#$Data::Dumper::Indent = 1;
+#$Data::Dumper::Sortkeys = 1;
+#$Data::Dumper::Quotekeys = 0;
+
+sub Dumper {
+    my $value = shift;
+    my $depth = shift || 0;
+
+    if (ref($value) eq 'HASH') {
+        my @r;
+        push @r, "dict:\n";
+        # bencode specifies a sort order, so make sure we use it
+        for my $key (sort(keys(%{$value}))) {
+            push @r, "\t";
+            push @r, Dumper($key);
+            push @r, "\t";
+            push @r, Dumper($value->{$key});
+            push @r, "\n";
+        }
+        return @r;
+    }
+
+    if (ref($value) eq 'ARRAY') {
+        my @r;
+        push @r, "array:\n";
+        for my $i (@{$value}) {
+            push @r, "\t";
+            push @r, Dumper($i);
+            push @r, "\n";
+        }
+        return @r;
+    }
+
+    if (ref($value) eq 'SCALAR') {
+        return Dumper($$value);
+    }
+
+    if ($value =~ m/^-?[0-9]$/) {
+        return 'int: ',$value;
+    }
+
+    return 'str: ',$value;
+}
+
+1;
+
 package mini::Digest::SHA;
 use warnings;
 use strict;
@@ -236,6 +292,8 @@ use strict;
 # Wrap the communications
 #
 
+use IO::Socket;
+
 sub new {
     my $class = shift;
     my $addr = shift || die("need address");
@@ -394,13 +452,6 @@ package main;
 use warnings;
 use strict;
 
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Sortkeys = 1;
-$Data::Dumper::Quotekeys = 0;
-
-use IO::Socket;
-
 sub main() {
     my $rpc = RPC->new(
         $option->{addr},
@@ -409,14 +460,14 @@ sub main() {
     ) or die "cannot start rpc";
     $rpc->trace($option->{trace});
 
-    print(Dumper($rpc->ping()));
-    print(Dumper($rpc->cookie()));
-    print(Dumper($rpc->ping_auth()));
+    print(mini::Data::Dumper($rpc->ping()));
+    print(mini::Data::Dumper($rpc->cookie()));
+    print(mini::Data::Dumper($rpc->ping_auth()));
 
-    #print(Dumper($rpc->Admin_availableFunctions()));
+    #print(mini::Data::Dumper($rpc->Admin_availableFunctions()));
 
     my $packet;
     $packet = $rpc->_build_query_auth('ETHInterface_listDevices');
-    print(Dumper($rpc->_sync_call($packet)));
+    print(mini::Data::Dumper($rpc->_sync_call($packet)));
 }
 main();
