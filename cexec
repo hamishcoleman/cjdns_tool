@@ -27,6 +27,8 @@ use strict;
 #$Data::Dumper::Sortkeys = 1;
 #$Data::Dumper::Quotekeys = 0;
 
+use Scalar::Util qw(looks_like_number);
+
 sub _Dumper {
     my $value = shift;
     my $depth = shift || 0;
@@ -96,7 +98,7 @@ sub _Dumper {
         ...
     }
 
-    if ($value =~ m/^-?[0-9]$/) {
+    if (looks_like_number($value)) {
         return $value;
     }
 
@@ -199,6 +201,8 @@ use strict;
 # libbdecode-perl package
 #
 
+use Scalar::Util qw(looks_like_number);
+
 sub _encode_value {
     my $value = shift;
 
@@ -228,7 +232,8 @@ sub _encode_value {
         return _encode_value($$value);
     }
 
-    if ($value =~ m/^-?[0-9]$/) {
+    if (looks_like_number($value)) {
+        # FIXME - 'inf' and 'infinity'
         return 'i',$value,'e';
     }
 
