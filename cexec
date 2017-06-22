@@ -36,7 +36,7 @@ sub _Dumper {
         push @r, "{";
         my $empty = 1;
         $depth++;
-        # bencode specifies a sort order, so make sure we use it
+        # Use a sort order for testable and human-readable output
         for my $key (sort(keys(%{$value}))) {
             if ($empty) {
                 # this list is not empty, so bump it onto the next line
@@ -88,7 +88,12 @@ sub _Dumper {
     }
 
     if (ref($value) eq 'SCALAR') {
-        return _Dumper($$value, $depth);
+        return '\\', _Dumper($$value, $depth);
+    }
+
+    if (ref($value)) {
+        # CODE REF GLOB LVALUE FORMAT IO VSTRING Regexp
+        ...
     }
 
     if ($value =~ m/^-?[0-9]$/) {
