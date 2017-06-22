@@ -508,5 +508,8 @@ sub main() {
     my $packet;
     $packet = $rpc->_build_query_auth('ETHInterface_listDevices');
     print(mini::Data::Dumper($rpc->_sync_call($packet)));
+
+    $packet = $rpc->_build_query_unauth('InterfaceController_peerStats');
+    print(mini::Data::Dumper($rpc->_sync_call($packet)));
 }
 main();
