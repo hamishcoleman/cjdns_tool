@@ -296,7 +296,6 @@ sub _get_array {
     while (1) {
         my $type = _get_type($sh);
         last if ($type eq 'e');
-        die("syntax") if ($type !~ m/[-0-9dli]/);
         $sh->ungetc();
 
         my $value = _get_value($sh);
@@ -330,12 +329,7 @@ sub _get_value {
 sub decode {
     my $input_string = shift;
     my $sh = Stream::String->new($input_string);
-    my $result = _get_value($sh);
-    if (!$sh->eof()) {
-        my $garbage = $sh->read();
-        warn("trailing garbage: ",$garbage);
-    }
-    return $result;
+    return _get_value($sh);
 }
 
 1;
