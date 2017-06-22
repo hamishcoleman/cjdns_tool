@@ -229,7 +229,9 @@ sub _encode_value {
     }
 
     if (ref($value) eq 'SCALAR') {
-        return _encode_value($$value);
+        # if it is a ref to a scalar, it is a sign to never treat it as
+        # a number
+        return length($$value),':',$$value;
     }
 
     if (looks_like_number($value)) {
