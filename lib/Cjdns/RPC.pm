@@ -7,6 +7,9 @@ use strict;
 
 use IO::Socket;
 
+use Bencode_bork;
+use mini::Digest::SHA;
+
 sub new {
     my $class = shift;
     my $addr = shift || die("need address");
