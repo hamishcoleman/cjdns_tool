@@ -1,4 +1,4 @@
-package RPC;
+package Cjdns::RPC;
 use warnings;
 use strict;
 #

@@ -23,7 +23,7 @@ use mini::Data;
 use mini::Digest::SHA;
 use Stream::String;
 use Bencode_bork;
-use RPC;
+use Cjdns::RPC;
 
 sub main() {
     my $rpc = RPC->new(
