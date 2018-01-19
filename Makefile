@@ -15,6 +15,8 @@ build_dep:
 install: clean
 	mkdir -p $(INSTALLBIN)
 	cp -pr cexec $(INSTALLBIN)
+	mkdir -p $(INSTALLLIB)/mini/
+	cp -pr lib/mini/Data.pm $(INSTALLLIB)/mini/
 
 tar: $(tarfile)
 

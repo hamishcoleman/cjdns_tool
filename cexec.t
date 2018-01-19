@@ -13,33 +13,6 @@ my $test_structure = {
     f => \'-200',
 };
 
-## test the data dumper
-
-# Simple scalars
-is(mini::Data::Dumper(1),"1\n");
-is(mini::Data::Dumper(-100),"-100\n");
-is(mini::Data::Dumper('fred'),"'fred'\n");
-# TODO - floating point numbers
-
-# Test more complete structures
-my $expect = <<'EOF';
-{
- 'a': 1,
- 'aa': -100,
- 'b': 'fred',
- 'c': [
-  1,
-  2,
-  'aa',
-  'bb',
- ],
- 'd': { },
- 'e': [ ],
- 'f': \-200,
-}
-EOF
-is(mini::Data::Dumper($test_structure),$expect);
-
 ## Test the sha256 hack
 is(mini::Digest::SHA::sha256(''),'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
 is(mini::Digest::SHA::sha256('test'),'9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08');
