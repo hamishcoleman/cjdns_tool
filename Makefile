@@ -10,7 +10,7 @@ tarfile := $(NAME)-$(describe).tar.gz
 all: test
 
 build_dep:
-	aptitude install perl
+	aptitude install perl libdevel-cover-perl
 
 install: clean
 	mkdir -p $(INSTALLBIN)
