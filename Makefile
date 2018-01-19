@@ -15,8 +15,13 @@ build_dep:
 install: clean
 	mkdir -p $(INSTALLBIN)
 	cp -pr cexec $(INSTALLBIN)
-	mkdir -p $(INSTALLLIB)/mini/
+	mkdir -p $(INSTALLLIB)/mini/Digest/
+	mkdir -p $(INSTALLLIB)/Stream/
 	cp -pr lib/mini/Data.pm $(INSTALLLIB)/mini/
+	cp -pr lib/mini/Digest/SHA.pm $(INSTALLLIB)/mini/Digest/
+	cp -pr lib/Stream/String.pm $(INSTALLLIB)/Stream/
+	cp -pr lib/Bencode_bork.pm $(INSTALLLIB)/
+	cp -pr lib/RPC.pm $(INSTALLLIB)/
 
 tar: $(tarfile)
 
