@@ -3,6 +3,8 @@ use warnings;
 use strict;
 #
 # In another example of yak shaving, I dont want to install libio-string-perl
+#
+# FIXME - perl > 5.8 supports opening string refs as filehandles
 
 sub new {
     my $class = shift;
