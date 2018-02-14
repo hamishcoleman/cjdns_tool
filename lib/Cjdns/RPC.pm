@@ -2,6 +2,8 @@ package Cjdns::RPC;
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # Wrap the communications
 #
 

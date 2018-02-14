@@ -1,3 +1,6 @@
+#
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 
 NAME := cjdns_tool
 INSTALLROOT := installdir

@@ -2,6 +2,8 @@ package Stream::String;
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # In another example of yak shaving, I dont want to install libio-string-perl
 #
 # FIXME - perl > 5.8 supports opening string refs as filehandles

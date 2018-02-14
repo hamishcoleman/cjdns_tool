@@ -2,6 +2,8 @@
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # This is a simple and generic test runner script, intended to be used
 # when the tests are co-located with the modules they are testing.
 #

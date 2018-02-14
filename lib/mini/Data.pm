@@ -2,6 +2,8 @@ package mini::Data;
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # In the endless list of things I need to build from scratch, Data::Dumper
 # also needs lots of packages installed
 #

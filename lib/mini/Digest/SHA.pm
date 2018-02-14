@@ -2,6 +2,8 @@ package mini::Digest::SHA;
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # The Digest::SHA module is in the perl-modules package, which is so large
 # that it would defeat the purpose of having a minimal system, so I cheat
 # by relying on the commandline tools in a hacky way

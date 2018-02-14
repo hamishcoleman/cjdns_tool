@@ -2,6 +2,8 @@ package Bencode_bork;
 use warnings;
 use strict;
 #
+# Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
+#
 # I did so well on the decoder, that when I discovered that I could not simply
 # install the libbencode-perl without dragging 33Meg of stuff in, I thought
 # "why not write an encoder too" ..
