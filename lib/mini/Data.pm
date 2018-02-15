@@ -7,21 +7,44 @@ use strict;
 # In the endless list of things I need to build from scratch, Data::Dumper
 # also needs lots of packages installed
 #
-# TODO - try to load the Data::Dumper and use it if found
+# TODO
+# - try to load the Data::Dumper and use it if found
+# - Keep track of Seen state of objects
+# - Allow turning on/off the use of "bless()"
 
 #use Data::Dumper;
 #$Data::Dumper::Indent = 1;
 #$Data::Dumper::Sortkeys = 1;
 #$Data::Dumper::Quotekeys = 0;
 
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(looks_like_number blessed reftype);
 
 sub _Dumper {
     my $value = shift;
     my $depth = shift || 0;
 
-    if (ref($value) eq 'HASH') {
+    my $blessed = blessed($value);
+    my @blessed_head;
+    my @blessed_tail;
+    if (defined($blessed)) {
+        push @blessed_head, 'bless( ';
+        push @blessed_tail, ', ',_Dumper($blessed),' )';
+    }
+
+    my $ref = reftype($value);
+
+    if (!defined($ref)) {
+        if (looks_like_number($value)) {
+            return @blessed_head,$value,@blessed_tail;
+        }
+
+        # FIXME - quote escape the value
+        return @blessed_head,"'",$value,"'",@blessed_tail;
+    }
+
+    if ($ref eq 'HASH') {
         my @r;
+        push @r, @blessed_head;
         push @r, "{";
         my $empty = 1;
         $depth++;
@@ -46,11 +69,13 @@ sub _Dumper {
             push @r, ' 'x$depth;
         }
         push @r, "}";
+        push @r, @blessed_tail;
         return @r;
     }
 
-    if (ref($value) eq 'ARRAY') {
+    if ($ref eq 'ARRAY') {
         my @r;
+        push @r, @blessed_head;
         push @r, "[";
         my $empty = 1;
         $depth++;
@@ -73,24 +98,16 @@ sub _Dumper {
             push @r, ' 'x$depth;
         }
         push @r, ']';
+        push @r, @blessed_tail;
         return @r;
     }
 
-    if (ref($value) eq 'SCALAR') {
-        return '\\', _Dumper($$value, $depth);
+    if ($ref eq 'SCALAR') {
+        return @blessed_head,'\\', _Dumper($$value, $depth),@blessed_tail;
     }
 
-    if (ref($value)) {
-        # CODE REF GLOB LVALUE FORMAT IO VSTRING Regexp
-        ...
-    }
-
-    if (looks_like_number($value)) {
-        return $value;
-    }
-
-    # FIXME - quote escape the value
-    return "'",$value,"'";
+    # CODE REF GLOB LVALUE FORMAT IO VSTRING Regexp
+    ...
 }
 
 sub Dumper {
