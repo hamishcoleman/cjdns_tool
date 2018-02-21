@@ -1,0 +1,12 @@
+language: perl
+
+#
+# Could add this to the cpanfile, but "normally" I dont need it, as I use
+# the local Devel::Cover html report.
+#
+before_script:
+  - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
+
+script:
+    - make cover
+    - cover -report codecov
