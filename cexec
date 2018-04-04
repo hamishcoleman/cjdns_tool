@@ -23,12 +23,11 @@ BEGIN {
 
 use mini::Data;
 use mini::Digest::SHA;
-use Stream::String;
 use Bencode_bork;
 use Cjdns::RPC;
 
 sub main() {
-    my $rpc = RPC->new(
+    my $rpc = Cjdns::RPC->new(
         $option->{addr},
         $option->{port},
         $option->{password},
