@@ -8,7 +8,7 @@ use strict;
 # that it would defeat the purpose of having a minimal system, so I cheat
 # by relying on the commandline tools in a hacky way
 
-my $has_digest_sha = eval { require Digest::SHA; 1; };
+our $has_digest_sha = eval { require Digest::SHA; 1; };
 
 sub sha256 {
     my $input = shift;
