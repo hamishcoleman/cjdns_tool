@@ -1,6 +1,7 @@
 package mini::Digest::SHA;
 use warnings;
 use strict;
+use IPC::Open2;
 #
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 #
@@ -15,15 +16,20 @@ sub sha256 {
     if ($has_digest_sha) {
         return Digest::SHA::sha256_hex($input);
     } else {
-        return _sha256_shell($input);
+        return _sha256_ipc($input);
     }
 }
 
-# Hack hack hackitty hack
-sub _sha256_shell {
+# Failover IPC::Open2
+sub _sha256_ipc {
     my $input = shift;
-    my $rawoutput = `/bin/echo -n \Q${input}\E | sha256sum`;
-    return substr($rawoutput,0,64);
+    my $pid = open2(my $p_read, my $p_write, 'sha256sum', '-') || die $!;
+    print $p_write $input;
+    close($p_write);
+    my ($hash) = <$p_read> =~ m/^([[:xdigit:]]{64})/;
+    close($p_read);
+    waitpid($pid, 0);
+    return $hash;
 }
 
 1;
