@@ -18,7 +18,14 @@ my @sums = (
 for (@sums) {
     my ($in, $exp) = ($_->[0], $_->[1]);
     is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp");
-    is(mini::Digest::SHA::_sha256_ipc($in), $exp, "_sha256_ipc of string $exp");
+}
+
+# Force the use of the hacky shell-based sha
+$mini::Digest::SHA::has_digest_sha = 0;
+
+for (@sums) {
+    my ($in, $exp) = ($_->[0], $_->[1]);
+    is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp using open2");
 }
 
 done_testing();
