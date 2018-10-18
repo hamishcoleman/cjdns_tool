@@ -23,6 +23,10 @@ sub _Dumper {
     my $value = shift;
     my $depth = shift || 0;
 
+    if (!defined($value)) {
+        return 'undef';
+    }
+
     my $blessed = blessed($value);
     my @blessed_head;
     my @blessed_tail;
