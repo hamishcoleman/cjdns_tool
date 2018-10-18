@@ -3,6 +3,7 @@
 
 use Test::More;
 use MIME::Base64;
+use v5.10;
 
 require_ok('mini::Digest::SHA');
 
@@ -14,28 +15,38 @@ my @sums = (
      ['foo" #', 'f6f3d444def883e897a15e0f9f3527978f985c5cd964fdd10e34e1702ea15f61'],
      ['-n foo" #', '77da3100f771088f841e9c8c8c87c4fa10ec820bcf3797bb5d0e3afb6d682c75'],
      ['-n -c -x foo\\\\\ "\' " #', '1d21804b2cc4db41f35cfdb19537701ba2a94c16c9cd570fd54742a5b2a9efcc'],
+     [ pack('U*', (0..255)) , '40aff2e9d2d8922e47afd4648e6967497158785fbd1da870e7110266bf944880' ],
+     [ "\nhey\t ho\r\nlets go!", 'ce1513e1a735d18a88be0aff2316f5aef4f85b4f3c72759bc6a17c8d61eae8c3' ],
      [ do { local undef $/; decode_base64(<DATA>)},
        '239d4f4e08739eaccac0b99f050b6fd5502b7bc303fd7bdc42fc43ae59a79fd0' ] #
 );
 
-for (@sums) {
-    my ($in, $exp) = @$_;
-    is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp");
+sub test_sums {
+    my ($desc, @sums) = @_;
+    my $i = 0;
+    for (@sums) {
+        my ($in, $exp) = @$_;
+        is(mini::Digest::SHA::sha256($in), $exp, "$desc i=".$i++);
+    }
+    my $desc = shift;
 }
+
+
+# Default code path
+test_sums("sha256 of strings using default code path", @sums);
+
+# Force Digest::SHA for completeness
+$mini::Digest::SHA::has_digest_sha = 1;
+test_sums("sha256 of strings using explicit \$has_digest_sha", @sums);
 
 # Force the use of the sha256sum and IPC::Open2 implementation, thus testing the normal code path
 $mini::Digest::SHA::has_digest_sha = 0;
+test_sums("sha256 of strings using open2", @sums);
 
-for (@sums) {
-    my ($in, $exp) = @$_;
-    is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp using open2");
-}
-
-
+# regression for bug where $\ was inserted into print() to open2()
 {   
     local $\ = "\n";
-    my ($in, $exp) = @{$sums[0]};
-    is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp using open2 and \$\\ is a newline");
+    test_sums("sha256 of strings using open2 where \$\\ is newline", @sums);
 }
 
 done_testing();
