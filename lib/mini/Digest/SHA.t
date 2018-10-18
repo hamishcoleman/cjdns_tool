@@ -31,6 +31,13 @@ for (@sums) {
     is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp using open2");
 }
 
+
+{   
+    local $\ = "\n";
+    my ($in, $exp) = @{$sums[0]};
+    is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp using open2 and \$\\ is a newline");
+}
+
 done_testing();
 
 

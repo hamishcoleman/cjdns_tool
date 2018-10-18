@@ -24,7 +24,10 @@ sub sha256 {
 sub _sha256_ipc {
     my $input = shift;
     my $pid = open2(my $p_read, my $p_write, 'sha256sum', '-') || die $!;
-    print $p_write $input;
+    {
+        local undef $\;
+        print $p_write $input;
+    }
     close($p_write);
     my ($hash) = <$p_read> =~ m/^([[:xdigit:]]{64})/;
     close($p_read);
