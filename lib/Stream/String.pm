@@ -6,7 +6,9 @@ use strict;
 #
 # In another example of yak shaving, I dont want to install libio-string-perl
 #
-# FIXME - perl > 5.8 supports opening string refs as filehandles
+# Additionally, while perl > 5.8 supports opening string refs as filehandles,
+# it is implemented in PerlIO.pm, which is contained in perl-modules-5.24,
+# which would add 40Meg of other dependancies to the installed system.
 
 sub new {
     my $class = shift;
