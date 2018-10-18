@@ -23,7 +23,7 @@ for (@sums) {
     is(mini::Digest::SHA::sha256($in), $exp, "sha256 of string $exp");
 }
 
-# Force the use of the failover sha
+# Force the use of the sha256sum and IPC::Open2 implementation, thus testing the normal code path
 $mini::Digest::SHA::has_digest_sha = 0;
 
 for (@sums) {
