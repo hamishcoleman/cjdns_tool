@@ -14,6 +14,7 @@ use strict;
 #
 
 use Scalar::Util qw(looks_like_number);
+use Stream::String;
 
 sub _encode_value {
     my $value = shift;
@@ -78,7 +79,7 @@ sub _get_int_raw {
         }
         $ch = $sh->getc();
         if ($ch !~ m/[0-9]/) {
-            $sh->ungetc(ord($ch));
+            $sh->ungetc();
             return $int * $sign;
         }
         $int *= 10;
@@ -99,11 +100,7 @@ sub _get_string {
     my $count = _get_int_raw($sh);
     my $ch = $sh->getc();
     die("syntax") if ($ch ne ':');
-    my $buf;
-    $sh->read($buf, $count);
-    # TODO
-    # - check result of read for short-reads
-    return $buf;
+    return $sh->read($count);
 }
 
 sub _get_array {
@@ -112,7 +109,7 @@ sub _get_array {
     while (1) {
         my $type = _get_type($sh);
         last if ($type eq 'e');
-        $sh->ungetc(ord($type));
+        $sh->ungetc();
 
         my $value = _get_value($sh);
         push @result, $value;
@@ -136,7 +133,7 @@ sub _get_value {
     }
     if ($type =~ m/[0-9]/) {
         # a string
-        $sh->ungetc(ord($type));
+        $sh->ungetc();
         return _get_string($sh);
     }
     die("syntax");
@@ -144,7 +141,7 @@ sub _get_value {
 
 sub decode {
     my $input_string = shift;
-    open my $sh, "<", \$input_string;
+    my $sh = Stream::String->new($input_string);
     return _get_value($sh);
 }
 
