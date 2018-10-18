@@ -20,7 +20,8 @@ sub sha256 {
     }
 }
 
-# Failover IPC::Open2
+# use sha256sum and IPC::Open2 to avoid needing to install Digest::SHA::sha256
+# this is the normal expected codepath
 sub _sha256_ipc {
     my $input = shift;
     my $pid = open2(my $p_read, my $p_write, 'sha256sum', '-') || die $!;
