@@ -10,3 +10,7 @@ before_script:
 script:
     - make cover
     - cover -report codecov
+
+# TODO, maybe:
+# - build the minimal test environment
+# - run some tests within that environment
