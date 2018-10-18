@@ -15,7 +15,7 @@ sub new {
     my $self = {};
     bless $self, $class;
     $self->{_pos} = 0;
-    $self->{_string} = shift || die("empty strings are unsupported");
+    $self->{_string} = shift || '';
     return $self;
 }
 

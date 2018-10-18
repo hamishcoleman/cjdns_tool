@@ -122,6 +122,10 @@ sub _get_value {
     my $output;
     my $type = _get_type($sh);
 
+    if (!defined($type)) {
+        return undef;
+    }
+
     if ($type eq 'd') {
         return {_get_array($sh)};
     }
