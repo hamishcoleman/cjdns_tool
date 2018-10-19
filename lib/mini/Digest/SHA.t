@@ -28,7 +28,6 @@ sub test_sums {
         my ($in, $exp) = @$_;
         is(mini::Digest::SHA::sha256($in), $exp, "$desc i=".$i++);
     }
-    my $desc = shift;
 }
 
 
