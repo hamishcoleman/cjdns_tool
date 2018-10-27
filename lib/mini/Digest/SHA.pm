@@ -24,6 +24,7 @@ sub sha256 {
 # this is the normal expected codepath
 sub _sha256_ipc {
     my $input = shift;
+    die "Wide character in input" if $input =~ m/[^\x00-\xFF]/;
     my $pid = open2(my $p_read, my $p_write, 'sha256sum', '-') || die $!;
     {
         local undef $\;
