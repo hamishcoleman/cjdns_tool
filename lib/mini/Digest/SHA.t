@@ -16,9 +16,8 @@ my @sums = (
      ['foo" #', 'f6f3d444def883e897a15e0f9f3527978f985c5cd964fdd10e34e1702ea15f61'],
      ['-n foo" #', '77da3100f771088f841e9c8c8c87c4fa10ec820bcf3797bb5d0e3afb6d682c75'],
      [ pack('U*', (256..384)), sub {
-           my ($fun, $in) = @_;
-           throws_ok { &$fun($in) } qr/Wide char/, 'throws on wide chars';
-       } ],
+           my ($fun, $in, $desc) = @_;
+           throws_ok { &$fun($in) } qr/Wide char/, qq[$desc throws on wide chars] }],
      [ pack('U*', (0..255)) , '40aff2e9d2d8922e47afd4648e6967497158785fbd1da870e7110266bf944880' ],
      [ do { local undef $/; decode_base64(<DATA>)},
        '239d4f4e08739eaccac0b99f050b6fd5502b7bc303fd7bdc42fc43ae59a79fd0' ] #
@@ -27,16 +26,13 @@ my @sums = (
 
 sub test_sums {
     my ($desc, @sums) = @_;
-    my $i = 0;
-
     my $fun = sub { mini::Digest::SHA::sha256(shift) };
-
     for (@sums) {
         my ($in, $exp) = @$_;
         if (ref($exp) eq 'CODE') {
-            &$exp($fun, $in);
+            &$exp($fun, $in, $desc);
         } else {
-            is(&$fun($in), $exp, "$desc $exp");
+            is(&$fun($in), $exp, "$desc matches $exp");
         }
     }
 }
