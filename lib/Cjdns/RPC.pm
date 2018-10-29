@@ -103,6 +103,10 @@ sub _sync_call {
     $self->{_fh}->syswrite($buf);
 
     $buf = $self->_read();
+    if (!defined($buf)) {
+        return undef;
+    }
+
     if (defined($txid) && $buf->{txid} ne $txid) {
         die("txid mismatch");
     }
@@ -157,6 +161,9 @@ sub cookie {
     my $self = shift;
     my $packet = $self->_build_query_unauth('cookie');
     my $buf = $self->_sync_call($packet);
+    if (!defined($buf)) {
+        return undef;
+    }
     $self->{_cookie} = $buf->{cookie};
     $self->{_hash} = mini::Digest::SHA::sha256(
         $self->{_password}.$self->{_cookie}
