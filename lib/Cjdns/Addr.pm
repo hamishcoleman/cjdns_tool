@@ -1,7 +1,7 @@
 package Cjdns::Addr;
+
 use strict;
 use mini::Digest::SHA;
-use Smart::Comments;
 
 sub pub2ip6 {
     my ($pubkey) = shift =~ m/^(.+).k$/;
