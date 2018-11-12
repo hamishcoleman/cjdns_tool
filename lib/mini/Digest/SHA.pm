@@ -1,6 +1,7 @@
 package mini::Digest::SHA;
 use warnings;
 use strict;
+use IPC::Open2;
 #
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 #
@@ -12,18 +13,37 @@ our $has_digest_sha = eval { require Digest::SHA; 1; };
 
 sub sha256 {
     my $input = shift;
-    if ($has_digest_sha) {
-        return Digest::SHA::sha256_hex($input);
-    } else {
-        return _sha256_shell($input);
-    }
+    return $has_digest_sha
+      ? Digest::SHA::sha256_hex($input)
+      : _sha_ipc("256", $input);
+
 }
 
-# Hack hack hackitty hack
-sub _sha256_shell {
+sub sha512 {
     my $input = shift;
-    my $rawoutput = `/bin/echo -n \Q${input}\E | sha256sum`;
-    return substr($rawoutput,0,64);
+    return $has_digest_sha
+      ? Digest::SHA::sha512_hex($input)
+      : _sha_ipc("512", $input);
+}
+
+
+# use shaNNNsum and IPC::Open2 to avoid needing to install Digest::SHA::shaNNN
+# this is the normal expected codepath
+
+sub _sha_ipc {
+    my $bits = shift;
+    my $input = shift;
+    die "Wide character in input" if $input =~ m/[^\x00-\xFF]/;
+    my $pid = open2(my $p_read, my $p_write, qq[sha${bits}sum], '-') || die $!;
+    {
+        local undef $\;
+        print $p_write $input;
+    }
+    close($p_write);
+    my ($hash) = <$p_read> =~ m/^([[:xdigit:]]{64,128})/;
+    close($p_read);
+    waitpid($pid, 0);
+    return $hash;
 }
 
 1;
