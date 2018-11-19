@@ -1,4 +1,4 @@
-use Test::More;
+use mini::Test;
 
 
 require_ok("Cjdns::Addr");

@@ -1,7 +1,7 @@
 # -*- perl -*-
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 
-use Test::More 'no_plan';
+use mini::Test;
 
 require_ok('mini::Data');
 
@@ -47,3 +47,4 @@ my $expect = <<'EOF';
 EOF
 is(mini::Data::Dumper($test_structure),$expect);
 
+done_testing();

@@ -1,7 +1,7 @@
 # -*- perl -*-
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 
-use Test::More 'no_plan';
+use mini::Test;
 
 require_ok('Bencode_bork');
 
@@ -30,6 +30,6 @@ is(Bencode_bork::encode($test_structure),$expect);
 # A string composed of a number is not detectable in the decoded structure
 # so, remove that from the expected structure - TODO, should it be detectable?
 $test_structure->{f} = '-200';
-
 is_deeply(Bencode_bork::decode($expect),$test_structure);
+done_testing()
 

@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+use strict;
+
+my @testfiles = map {chomp($_);$_} `find -name '*.t'`;
+
+my @failed;
+foreach my $t (@testfiles) {
+    print "\n$t\n".("-" x length($t))."\n";
+    my $failed = system("perl -Ilib $t");
+    if ($failed) {
+        push @failed, [$t, $failed];
+    }
+}
+
+if (@failed) {
+    die "\n======== FAIL! ==========\n"
+      . join("\n", map { $_->[0]." failed=".$_->[1]} @failed)
+      . "\n";
+} else {
+    print "\n[ OK ] No failures reported\n";
+    exit(0);
+}
+

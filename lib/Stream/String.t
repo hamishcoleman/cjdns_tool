@@ -1,7 +1,7 @@
 # -*- perl -*-
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 
-use Test::More 'no_plan';
+use mini::Test;
 
 require_ok('Stream::String');
 
@@ -19,3 +19,4 @@ ok($sh->eof());
 is($sh->getc(),undef);
 ok($sh->ungetc());
 
+done_testing();

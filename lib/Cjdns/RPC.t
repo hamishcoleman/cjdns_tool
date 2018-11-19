@@ -1,7 +1,7 @@
 # -*- perl -*-
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 
-use Test::More 'no_plan';
+use mini::Test;
 
 require_ok('Cjdns::RPC');
 
@@ -37,6 +37,8 @@ $expect = {
     },
 };
 is_deeply($rpc->_build_query_unauth('query', a1 => 'aa', a2 => 'bb'), $expect);
+
+done_testing();
 
 # TODO
 # - add tests for the authenticated packet builder
