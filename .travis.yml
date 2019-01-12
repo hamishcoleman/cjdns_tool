@@ -7,7 +7,7 @@ language: perl
 #
 before_script:
   - sudo apt-get update -y
-  - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
+  - sudo cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
   - make build_dep
 
 script:
