@@ -13,8 +13,12 @@ debfile := $(NAME)_$(describe)_all.deb
 
 all: test
 
+BUILD_DEPS := \
+    perl libdevel-cover-perl libtest-exception-perl \
+    devscripts debhelper
+
 build_dep:
-	sudo apt install -y perl libdevel-cover-perl devscripts
+	sudo apt install -y $(BUILD_DEPS)
 
 install: clean
 	mkdir -p $(INSTALLBIN)
