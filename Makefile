@@ -2,7 +2,7 @@
 # Copyright (C) 2018 Hamish Coleman <hamish@zot.org>
 #
 
-NAME := cjdns_tool
+NAME := cjdnstool
 INSTALLROOT := installdir
 INSTALLBIN := $(INSTALLROOT)/usr/bin
 INSTALLLIB := $(INSTALLROOT)/usr/share/perl5
@@ -36,6 +36,8 @@ $(tarfile):
 
 clean:
 	rm -rf $(INSTALLROOT)
+
+distclean: clean
 
 cover:
 	cover -delete
