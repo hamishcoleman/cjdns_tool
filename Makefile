@@ -18,7 +18,7 @@ BUILD_DEPS := \
     devscripts debhelper
 
 build_dep:
-	sudo apt install -y $(BUILD_DEPS)
+	sudo apt-get install -y $(BUILD_DEPS)
 
 install: clean
 	mkdir -p $(INSTALLBIN)
