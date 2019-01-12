@@ -4,8 +4,8 @@
 
 NAME := cjdns_tool
 INSTALLROOT := installdir
-INSTALLBIN := $(INSTALLROOT)/usr/local/bin
-INSTALLLIB := $(INSTALLROOT)/usr/local/lib/site_perl
+INSTALLBIN := $(INSTALLROOT)/usr/bin
+INSTALLLIB := $(INSTALLROOT)/usr/share/perl5
 
 describe := $(shell git describe --dirty --always)
 tarfile := $(NAME)-$(describe).tar.gz
