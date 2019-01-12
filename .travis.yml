@@ -1,5 +1,5 @@
 dist: xenial
-language: perl
+language: minimal
 
 #
 # Could add this to the cpanfile, but "normally" I dont need it, as I use
@@ -7,9 +7,9 @@ language: perl
 #
 before_script:
   - sudo apt-get update -y
-  - which cpanm
-  - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
   - make build_dep
+  - sudo apt-get install -y cpanminus
+  - sudo cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
 
 script:
     - make cover || exit
