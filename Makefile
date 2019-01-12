@@ -42,7 +42,7 @@ $(tarfile):
 deb: $(debfile)
 
 $(debfile): debian/changelog
-	debuild --no-tgz-check
+	debuild --no-tgz-check -i -us -uc -b
 	mv ../$(debfile) ./
 
 debian/changelog:
