@@ -10,7 +10,11 @@ before_script:
 script:
     - make cover
     - cover -report codecov
+    - make build_dep
+    - make deb
 
-# TODO, maybe:
+# TODO:
 # - build the minimal test environment
+# - ensure that the package can install
 # - run some tests within that environment
+# - maybe copy the test files into the built package?
