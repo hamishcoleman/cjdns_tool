@@ -15,7 +15,7 @@ all: test
 
 BUILD_DEPS := \
     perl libdevel-cover-perl libtest-exception-perl \
-    devscripts debhelper
+    devscripts debhelper fakeroot
 
 build_dep:
 	sudo apt-get install -y $(BUILD_DEPS)
