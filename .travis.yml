@@ -5,6 +5,7 @@ language: perl
 # the local Devel::Cover html report.
 #
 before_script:
+  - sudo apt-get update -y
   - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
   - make build_dep
 
