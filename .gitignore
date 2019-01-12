@@ -1,4 +1,7 @@
 
 # the coverage output is not relevent to the version control
 cover_db
+
+# Generated output
 installdir
+*.deb

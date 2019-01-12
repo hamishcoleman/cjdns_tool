@@ -1,0 +1,12 @@
+Source: cjdnstool
+Priority: optional
+Maintainer: Hamish Coleman <hamish@zot.org>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 4.3.0.1
+Vcs-Git: https://github.com/hamishcoleman/cjdns_tool/
+
+Package: cjdnstool
+Architecture: all
+Depends: perl-base
+Recommends: cjdns
+Description: Minimal tool for talking to the cjdns control socket

@@ -3,17 +3,18 @@
 #
 
 NAME := cjdnstool
-INSTALLROOT := installdir
+INSTALLROOT ?= installdir
 INSTALLBIN := $(INSTALLROOT)/usr/bin
 INSTALLLIB := $(INSTALLROOT)/usr/share/perl5
 
 describe := $(shell git describe --dirty --always)
 tarfile := $(NAME)-$(describe).tar.gz
+debfile := $(NAME)_$(describe)_all.deb
 
 all: test
 
 build_dep:
-	aptitude install perl libdevel-cover-perl
+	sudo apt install -y perl libdevel-cover-perl devscripts
 
 install: clean
 	mkdir -p $(INSTALLBIN)
@@ -33,6 +34,15 @@ tar: $(tarfile)
 $(tarfile):
 	$(MAKE) install
 	tar -v -c -z -C $(INSTALLROOT) -f $(tarfile) .
+
+deb: $(debfile)
+
+$(debfile): debian/changelog
+	debuild --no-tgz-check
+	mv ../$(debfile) ./
+
+debian/changelog:
+	dch --create -v $(describe) --package $(NAME) --empty
 
 clean:
 	rm -rf $(INSTALLROOT)

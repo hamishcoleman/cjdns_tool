@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+#-*- makefile -*-
+
+export DH_VERBOSE=1
+export INSTALLROOT=`pwd`/debian/`dh_listpackages`/
+
+# main packaging script based on dh7 syntax
+%:
+	dh $@
