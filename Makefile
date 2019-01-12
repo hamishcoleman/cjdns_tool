@@ -47,6 +47,8 @@ $(debfile): debian/changelog
 
 debian/changelog:
 	dch --create -v $(describe) --package $(NAME) --empty
+	@echo "=== Using this changelog"
+	@cat debian/changelog
 
 clean:
 	rm -rf $(INSTALLROOT)
