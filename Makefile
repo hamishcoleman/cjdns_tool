@@ -15,6 +15,7 @@ all: test
 
 BUILD_DEPS := \
     perl libdevel-cover-perl libtest-exception-perl \
+    libio-socket-ssl-perl \
     devscripts debhelper fakeroot
 
 build_dep:
