@@ -24,10 +24,11 @@ build_dep:
 install: clean
 	mkdir -p $(INSTALLBIN)
 	cp -pr cexec $(INSTALLBIN)
+	mkdir -p $(INSTALLLIB)/mini/Data/
 	mkdir -p $(INSTALLLIB)/mini/Digest/
 	mkdir -p $(INSTALLLIB)/Stream/
 	mkdir -p ${INSTALLLIB}/Cjdns/
-	cp -pr lib/mini/Data.pm $(INSTALLLIB)/mini/
+	cp -pr lib/mini/Data/Dumper.pm $(INSTALLLIB)/mini/Data/
 	cp -pr lib/mini/Digest/SHA.pm $(INSTALLLIB)/mini/Digest/
 	cp -pr lib/Stream/String.pm $(INSTALLLIB)/Stream/
 	cp -pr lib/Bencode_bork.pm $(INSTALLLIB)/
