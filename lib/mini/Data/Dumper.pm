@@ -1,4 +1,4 @@
-package mini::Data;
+package mini::Data::Dumper;
 use warnings;
 use strict;
 #
@@ -11,6 +11,13 @@ use strict;
 # - try to load the Data::Dumper and use it if found
 # - Keep track of Seen state of objects
 # - Allow turning on/off the use of "bless()"
+
+use Exporter;
+
+BEGIN {
+    my @ISA = qw(Exporter);
+    my @EXPORT = qw(Dumper);
+}
 
 #use Data::Dumper;
 #$Data::Dumper::Indent = 1;
