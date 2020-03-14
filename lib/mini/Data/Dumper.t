@@ -3,14 +3,17 @@
 
 use Test::More 'no_plan';
 
-require_ok('mini::Data::Dumper');
+use_ok('mini::Data::Dumper');
+
+# Force using the mini version
+$mini::Data::Dumper::has_big_dumper = 0;
 
 ## test the data dumper
 
 # Simple scalars
-is(mini::Data::Dumper::Dumper(1),"1\n");
-is(mini::Data::Dumper::Dumper(-100),"-100\n");
-is(mini::Data::Dumper::Dumper('fred'),"'fred'\n");
+is(Dumper(1),"1\n");
+is(Dumper(-100),"-100\n");
+is(Dumper('fred'),"'fred'\n");
 # TODO - floating point numbers
 
 # Test more complete structures
@@ -45,5 +48,5 @@ my $expect = <<'EOF';
  ], 'testbless' ),
 }
 EOF
-is(mini::Data::Dumper::Dumper($test_structure),$expect);
+is(Dumper($test_structure),$expect);
 

@@ -8,21 +8,23 @@ use strict;
 # also needs lots of packages installed
 #
 # TODO
-# - try to load the Data::Dumper and use it if found
 # - Keep track of Seen state of objects
 # - Allow turning on/off the use of "bless()"
 
 use Exporter;
 
 BEGIN {
-    my @ISA = qw(Exporter);
-    my @EXPORT = qw(Dumper);
+    our @ISA = qw(Exporter);
+    our @EXPORT = qw(Dumper);
 }
 
-#use Data::Dumper;
-#$Data::Dumper::Indent = 1;
-#$Data::Dumper::Sortkeys = 1;
-#$Data::Dumper::Quotekeys = 0;
+our $has_big_dumper = eval {
+    require Data::Dumper;
+    $Data::Dumper::Indent = 1;
+    $Data::Dumper::Sortkeys = 1;
+    $Data::Dumper::Quotekeys = 0;
+    1;
+};
 
 use Scalar::Util qw(looks_like_number blessed reftype);
 
@@ -122,6 +124,9 @@ sub _Dumper {
 }
 
 sub Dumper {
+    if ($has_big_dumper) {
+        return Data::Dumper::Dumper(@_);
+    }
     my $value = shift;
     my @r = _Dumper($value,0);
     push @r,"\n";
