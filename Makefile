@@ -28,10 +28,10 @@ install: clean
 	mkdir -p $(INSTALLLIB)/mini/Digest/
 	mkdir -p $(INSTALLLIB)/Stream/
 	mkdir -p ${INSTALLLIB}/Cjdns/
+	cp -pr lib/mini/Bencode.pm $(INSTALLLIB)/mini/
 	cp -pr lib/mini/Data/Dumper.pm $(INSTALLLIB)/mini/Data/
 	cp -pr lib/mini/Digest/SHA.pm $(INSTALLLIB)/mini/Digest/
 	cp -pr lib/Stream/String.pm $(INSTALLLIB)/Stream/
-	cp -pr lib/Bencode_bork.pm $(INSTALLLIB)/
 	cp -pr lib/Cjdns/RPC.pm $(INSTALLLIB)/Cjdns
 	cp -pr lib/Cjdns/Addr.pm $(INSTALLLIB)/Cjdns
 
