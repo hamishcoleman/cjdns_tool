@@ -1,4 +1,4 @@
-package Bencode_bork;
+package mini::Bencode;
 use warnings;
 use strict;
 #
@@ -147,6 +147,13 @@ sub decode {
     my $input_string = shift;
     my $sh = Stream::String->new($input_string);
     return _get_value($sh);
+}
+
+sub bencode {
+    return encode(@_);
+}
+sub bdecode {
+    return decode(@_);
 }
 
 1;

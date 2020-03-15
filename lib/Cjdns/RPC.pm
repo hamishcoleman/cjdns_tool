@@ -9,7 +9,7 @@ use strict;
 
 use IO::Socket;
 
-use Bencode_bork;
+use mini::Bencode qw( bencode bdecode );
 use mini::Digest::SHA;
 
 sub new {
@@ -88,7 +88,7 @@ sub _build_query_auth {
         $packet->{args} = { @_ };
     }
 
-    my $buf = Bencode_bork::encode($packet);
+    my $buf = bencode($packet);
     $packet->{hash} = mini::Digest::SHA::sha256($buf);
     return $packet;
 }
@@ -98,7 +98,7 @@ sub _sync_call {
     my $packet = shift;
     my $txid = $packet->{txid};
 
-    my $buf = Bencode_bork::encode($packet);
+    my $buf = bencode($packet);
     $self->_trace(">",$buf);
     $self->{_fh}->syswrite($buf);
 
@@ -119,7 +119,7 @@ sub _read {
     my $buf;
     $self->{_fh}->sysread($buf,4096);
     $self->_trace("<",$buf);
-    return Bencode_bork::decode($buf);
+    return bdecode($buf);
 }
 
 sub ping {
