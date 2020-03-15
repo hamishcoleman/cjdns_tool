@@ -21,9 +21,6 @@ BEGIN {
     unshift @INC, File::Spec->catdir((File::Spec->splitpath($0))[1],'lib');
 }
 
-use mini::Data::Dumper;
-use mini::Digest::SHA;
-use Bencode_bork;
 use Cjdns::RPC;
 
 sub main() {
